@@ -153,7 +153,8 @@ class SketchFieldDemo extends React.Component {
       rememberText: '',
       backgroundColorText: '',
       fontFamilyType:'',
-      isTextDirection:false
+      isTextDirection:false,
+      isErase:false
     }
   }
 
@@ -171,6 +172,27 @@ class SketchFieldDemo extends React.Component {
       canUndo: this._sketch.canUndo(),
       canRedo: this._sketch.canRedo(),
     });
+  };
+
+  _onBackgroundImageDrop = (accepted /*, rejected*/) => {
+    if (accepted && accepted.length > 0) {
+      let sketch = this._sketch;
+      let reader = new FileReader();
+      let { stretched, stretchedX, stretchedY, originX, originY } = this.state;
+      reader.addEventListener(
+          'load',
+          () =>
+              sketch.setBackgroundFromDataUrl(reader.result, {
+                stretched: stretched,
+                stretchedX: stretchedX,
+                stretchedY: stretchedY,
+                originX: originX,
+                originY: originY,
+              }),
+          false,
+      );
+      reader.readAsDataURL(accepted[0]);
+    }
   };
 
   _clear = () => {
@@ -220,6 +242,11 @@ class SketchFieldDemo extends React.Component {
     switch (tool) {
       case 'Pencil':
         tool = Tools.Pencil
+        this.setState({isErase:false})
+        break;
+      case 'Erase':
+        tool = Tools.Pencil
+        this.setState({isErase:true})
         break;
       case 'Line':
         tool = Tools.Line
@@ -288,7 +315,8 @@ class SketchFieldDemo extends React.Component {
       canRedo,
       imageUrl,
       imagerProtractor,
-      isTextDirection
+      isTextDirection,
+      isErase
     } = this.state
     return (
         <>
@@ -299,6 +327,7 @@ class SketchFieldDemo extends React.Component {
                            tool={tool}
                            lineColor={lineColor}
                            lineWidth={lineWidth}
+                           isErase={isErase}
                            ref={(c) => {
                              this._sketch = c;
                            }}
@@ -318,9 +347,10 @@ class SketchFieldDemo extends React.Component {
                       onChange={(e) => this.handleChangeTool(e.target.value)}
                   >
                     <option value="Pencil">Pencil</option>
+                    <option value="Erase">Erase</option>
                     <option value="Line">Line</option>
-                    {/*<option value="Rectangle">Rectangle</option>*/}
-                    {/*<option value="Circle">Circle</option>*/}
+                    <option value="Rectangle">Rectangle</option>
+                    <option value="Circle">Circle</option>
                     <option value="Select">Select</option>
                     <option value="Pan">Pan</option>
                   </select>
@@ -496,6 +526,19 @@ class SketchFieldDemo extends React.Component {
                   <a href="#" className="btn btn-primary mt-2"
                      onClick={(e) => this._sketch.addImg(this.state.imageTriangle)}>Get Triangle</a>
                 </div>
+              </div>
+              <div>
+                <DropZone
+                    accept='image/*'
+                    multiple={false}
+                    style={styles.dropArea}
+                    activeStyle={styles.activeStyle}
+                    rejectStyle={styles.rejectStyle}
+                    onDrop={this._onBackgroundImageDrop}>
+                  Try dropping an image here,<br/>
+                  or click<br/>
+                  to select image as background.
+                </DropZone>
               </div>
               <a href="#" onClick={(e) => this._eraser()}>sss</a>
             </div>

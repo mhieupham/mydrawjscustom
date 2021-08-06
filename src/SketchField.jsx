@@ -58,6 +58,8 @@ class SketchField extends PureComponent {
     className: PropTypes.string,
     // Style options to pass to container div of canvas
     style: PropTypes.object,
+    // set to true if you wish to use erase
+    isErase:PropTypes.bool
   };
 
   static defaultProps = {
@@ -70,7 +72,8 @@ class SketchField extends PureComponent {
     tool: Tool.Pencil,
     widthCorrection: 2,
     heightCorrection: 0,
-    forceValue: false
+    forceValue: false,
+    isErase:false
   };
 
   state = {
